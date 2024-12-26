@@ -1,4 +1,5 @@
 import { Express, Request, Response } from 'express';
+import betRoutes from '../routes/bet.routes';
 import userRoutes from '../routes/user.routes';
 
 const routes = (app: Express) => {
@@ -10,6 +11,7 @@ const routes = (app: Express) => {
   );
 
   app.use('/api/v1/account', userRoutes);
+  app.use('/api/v1/bets', betRoutes);
 
   app.all('*', (req: Request, res: Response) =>
     res.status(404).send({
@@ -17,6 +19,7 @@ const routes = (app: Express) => {
       message: "Oops the url has been moved or doesn't exist",
     })
   );
+
 };
 
 export default routes;

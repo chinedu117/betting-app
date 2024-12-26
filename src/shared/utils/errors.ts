@@ -2,6 +2,7 @@ import { NextFunction, Request, RequestHandler, Response } from 'express';
 import winston from 'winston';
 import { IRequestWithUser } from './interface';
 import { JsonWebTokenError } from 'jsonwebtoken';
+import { AppError } from '../../exceptions/app';
 
 export const appError = (error: any) => {
   winston.error(`Internal Server Error:`, {
@@ -11,6 +12,14 @@ export const appError = (error: any) => {
   if (error instanceof JsonWebTokenError) {
     winston.error(`JWT Error: ${error}`);
     return { status: 400, title: 'Application error', message: 'Invalid Token' };
+  }
+
+  if (error instanceof AppError){
+    return {
+      status: error.statusCode,
+      message: error.message,
+      title: 'Application error',
+    }
   }
 
   return { status: 500, title: 'Application error', message: 'Internal Server error From App' };
@@ -23,8 +32,9 @@ export const use = (fn: RequestHandler) => {
 
 export const requestErrorHandler = (error: any, request: Request, response: Response, next: NextFunction) => {
   const applicationError = appError(error);
+
   response.status(error.status || 500).json({
-    status: error.status || 500,
+    status: applicationError.status || 500,
     title: 'Server error',
     message: applicationError.message,
   });

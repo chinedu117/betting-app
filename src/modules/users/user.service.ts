@@ -1,3 +1,4 @@
+import { AppError } from '../../exceptions/app';
 import { generateToken, hashPassword, verifyPassword } from '../../shared/utils/helpers';
 import { ICreateUser, IUser } from './interface';
 import { UserModel } from './user.model';
@@ -7,11 +8,11 @@ import { v4 as uuid } from 'uuid';
 export const createUser = async (userDto: ICreateUser): Promise<Omit<IUser, 'password'>> => {
   const validation = createUserValidationSchema.safeParse(userDto);
   if (!validation.success) {
-    throw new Error(validation.error.issues[0].message);
+    throw new AppError(validation.error.issues[0].message, 422);
   }
   const userExist = await getUserByEmail(userDto.email);
   if (userExist) {
-    throw new Error('User with email already exists');
+    throw new AppError('User with email already exists', 400);
   }
   const encryptPassword = hashPassword(userDto.password);
   const user: Partial<IUser> = {
@@ -43,14 +44,14 @@ export const loginUser = async (
 }> => {
   const user = await getUserByEmail(email);
   if (!user) {
-    throw new Error('User not found');
+    throw new AppError('User not found', 400);
   }
   if (!verifyPassword(password, user.password)) {
-    throw new Error('Invalid User credentials');
+    throw new AppError('Invalid User credentials', 400);
   }
   const token = generateToken({ email: user.email, _id: user._id });
   if (!token) {
-    throw new Error('Oops something went wrong');
+    throw new AppError('Oops something went wrong', 400);
   }
   return {
     user: {

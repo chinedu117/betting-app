@@ -6,11 +6,7 @@ interface WebSocketMessage {
   payload: any;
 }
 
-const handleWebSocketMessage = (
-  message: WebSocketMessage, 
-  sender: WebSocket, 
-  clients: Set<WebSocket>
-) => {
+const handleWebSocketMessage = (message: WebSocketMessage, sender: WebSocket, clients: Set<WebSocket>) => {
   switch (message.type) {
     case 'broadcast':
       // Broadcast to all clients except sender
