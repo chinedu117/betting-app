@@ -16,6 +16,7 @@ export const createBet = async (createBetDTO: ICreateBet): Promise<IBet> => {
   await bet.save();
   return bet;
 };
+
 export const getBetsByUserId = (userId: string): Promise<IBet[]> => {
   return BetModel.find({ userId }).lean().exec();
 };
